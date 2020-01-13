@@ -20,7 +20,7 @@ deploy:
   skip_cleanup: true
   acl: public_read
   on:
-    branch: master
+    branch: set-up
 after_deploy:
   - echo "Updating import map to point to new version of @ampath/esm-patient-chart-widgets"
   - statuscode=$(curl --output /dev/null --write-out %{http_code} -u $DEPLOYER_USERNAME:$DEPLOYER_PASSWORD -d '{ "service":"@ampath/esm-patient-chart-widgets","url":"https://ampath-poc.fra1.digitaloceanspaces.com/@ampath/esm-patient-chart-widgets/'$TRAVIS_COMMIT'/ampath-esm-patient-chart-widgets.js" }' -X PATCH $DEPLOYER_HOST/services\?env=prod -H "Accept:application/json" -H "Content-Type:application/json")
