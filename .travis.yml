@@ -13,16 +13,16 @@ deploy:
   provider: s3
   access_key_id: "$DIGITAL_OCEAN_SPACES_KEY_ID"
   secret_access_key: "$DIGITAL_OCEAN_SPACES_ACCESS_KEY"
-  bucket: "$DIGITAL_OCEAN_SPACES_BUCKET"
+  bucket: "$DIGITAL_OCEAN_SPACES_BUCKET_TEST"
   endpoint: "$DIGITAL_OCEAN_SPACES_ENDPOINT"
   cache-control: "max-age=31536000"
   local_dir: dist
   skip_cleanup: true
   acl: public_read
   on:
-    branch: master
+    branch: test-env
 after_deploy:
   - echo "Updating import map to point to new version of @ampath/esm-patient-chart-widgets"
-  - statuscode=$(curl --output /dev/null --write-out %{http_code} -u $DEPLOYER_USERNAME:$DEPLOYER_PASSWORD -d '{ "service":"@ampath/esm-patient-chart-widgets","url":"https://ampath-poc.fra1.digitaloceanspaces.com/@ampath/esm-patient-chart-widgets/'$TRAVIS_COMMIT'/ampath-esm-patient-chart-widgets.js" }' -X PATCH $DEPLOYER_HOST/services\?env=prod -H "Accept:application/json" -H "Content-Type:application/json")
+  - statuscode=$(curl --output /dev/null --write-out %{http_code} -u $DEPLOYER_USERNAME:$DEPLOYER_PASSWORD -d '{ "service":"@ampath/esm-patient-chart-widgets","url":"'IMPORT_MAP_FILE_PREFIX_TEST'/'$TRAVIS_COMMIT'/ampath-esm-patient-chart-widgets.js" }' -X PATCH $DEPLOYER_HOST/services\?env=test -H "Accept:application/json" -H "Content-Type:application/json")
   - echo "Deployment Status Code --> ${statuscode}"
   - if [ "$statuscode" -ne 200 ]; then travis_terminate "$statuscode"; fi
