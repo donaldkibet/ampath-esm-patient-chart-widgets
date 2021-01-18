@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import {
-  defineConfigSchema,
-  ModuleNameContext
-} from "@openmrs/esm-module-config";
+import { defineConfigSchema } from "@openmrs/esm-config";
 
 import StartVisitComponent from "./start-visit.component";
 import StartedVisitComponent from "./started-visit.component";
 import useStartedVisit from "./use-started-visit";
 import styles from "../summary-card.css";
-import { esmPatientChartWidgetsSchema } from "../config/patient-chart-widgets.schema";
+import { esmPatientChartWidgetsSchema } from "../config-shema";
+import { ModuleNameContext } from "@openmrs/esm-react-utils";
 
 export default function VisitSummaryComponent(props: any) {
   defineConfigSchema(

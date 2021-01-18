@@ -1,8 +1,7 @@
-import { openmrsObservableFetch } from "@openmrs/esm-api";
+import { FetchResponse, openmrsObservableFetch } from "@openmrs/esm-api";
 
 import { Observable } from "rxjs";
 import { take } from "rxjs/operators";
-import { FetchResponse } from "@openmrs/esm-api/dist/openmrs-fetch";
 
 export function getVisitsForPatient(
   patientUuid: string,
