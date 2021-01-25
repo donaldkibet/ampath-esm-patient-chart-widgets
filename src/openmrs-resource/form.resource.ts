@@ -10,10 +10,8 @@ export function searchForms(searchText: string): Observable<Array<Form>> {
   return openmrsObservableFetch(
     `/ws/rest/v1/form?v=custom:(uuid,name,encounterType:(uuid,name),version,published,retired,resources:(uuid,name,dataType,valueReference))${filter}`
   ).pipe(
-    map(results => {
-      const forms: Form[] = results["data"]["results"].map(form =>
-        toFormObject(form)
-      );
+    map(({ data }) => {
+      const forms: Form[] = data["results"].map(form => toFormObject(form));
       return forms;
     })
   );

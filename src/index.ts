@@ -42,6 +42,14 @@ function setupOpenMRS() {
             moduleName
           }
         )
+      },
+      {
+        id: "form-entry-formview-ext",
+        slot: "/patient/:patientUuid/hiv-dashboard-widget/form",
+        load: getAsyncLifecycle(() => import("./forms/form-view.component"), {
+          featureName: "hivDashboardWidget",
+          moduleName
+        })
       }
     ]
   };

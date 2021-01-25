@@ -13,13 +13,11 @@ import { filterAvailableCompletedForms } from "./form-grouper";
 import Parcel from "single-spa-react/parcel";
 import { Link } from "react-router-dom";
 import { Subscription } from "rxjs";
+import { useCurrentPatient } from "@openmrs/esm-react-utils";
+import { switchTo } from "@openmrs/esm-extensions";
 
 export default function FormsList(props: FormsListProps) {
-  // console.log("props", props);
-  const baseChartUrl = `${props.match.url.substr(
-    0,
-    props.match.url.search("/hiv-dashboard")
-  )}/hiv-dashboard`;
+  const baseChartUrl = "hiv-dashboard-widget";
   let formFilter: FormsFilter;
   const [forms, setForms] = React.useState(new Array<Form>());
   const [encounters, setEncounters] = React.useState(new Array<Encounter>());
@@ -28,6 +26,7 @@ export default function FormsList(props: FormsListProps) {
   );
   const [allForms, setAllForms] = React.useState(new Array<Form>());
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [isLoadingPatient, patient, , patientErr] = useCurrentPatient();
 
   const formItemStyle = {
     paddingTop: "2px",
@@ -35,39 +34,16 @@ export default function FormsList(props: FormsListProps) {
     cursor: "pointer"
   };
 
-  const handleFormSelected = (selectedForm, formName, encounter = null) => {
-    newWorkspaceItem({
-      component: p => {
-        return (
-          <Parcel
-            config={System.import("@ampath/esm-angular-form-entry")}
-            view="form"
-            formUuid={selectedForm}
-            key={selectedForm}
-            encounterUuid={encounter}
-            entryStarted={p.entryStarted}
-            entrySubmitted={p.entrySubmitted}
-            entryCancelled={p.entryCancelled}
-            closeComponent={p.closeComponent}
-            handleError={err => console.error(err)}
-            wrapWith="div"
-            mountParcel={p.singleSpaContext.mountParcel}
-          ></Parcel>
-        );
-      },
-      name: formName || "Form",
-      props: {
-        ...props.props,
-        match: { params: {} }
-      },
-      componentClosed: () => {
-        setAllForms([]);
-      },
-      inProgress: false,
-      validations: (workspaceTabs: any[]) =>
-        workspaceTabs.findIndex(
-          tab => tab.props.formUuid !== null && tab.props.formUuid !== undefined
-        )
+  const launchVisitNoteForm = (selectedForm, formName, encounter = null) => {
+    const url = `/patient/${patient.id}/hiv-dashboard-widget/form`;
+    switchTo("workspace", url, {
+      title: `${formName} Form View`,
+      data: {
+        selectedForm: selectedForm,
+        formName: formName,
+        encounter: encounter,
+        props: props
+      }
     });
   };
 
@@ -116,7 +92,7 @@ export default function FormsList(props: FormsListProps) {
     if (searchTerm && searchTerm.trim() !== "") {
       formFilter = formFilter.filterByText(searchTerm);
     }
-    setForms(formFilter.forms);
+    setForms(allForms);
   }, [searchTerm, allForms]);
 
   return (
@@ -155,7 +131,7 @@ export default function FormsList(props: FormsListProps) {
                 <button
                   className="omrs-btn omrs-text-action"
                   onClick={() =>
-                    handleFormSelected(
+                    launchVisitNoteForm(
                       encounter.form.uuid,
                       encounter.form.name,
                       encounter.uuid
@@ -165,9 +141,6 @@ export default function FormsList(props: FormsListProps) {
                   {" "}
                   {encounter.form.name}{" "}
                 </button>
-                {/* <svg className="omrs-icon omrs-type-body-regular" fill="var(--omrs-color-ink-low-contrast)">
-                  <use xlinkHref="#omrs-icon-chevron-right"></use>
-                </svg> */}
                 <br />
                 <span className="omrs-type-body-regular omrs-padding-left-24">
                   <Link
@@ -200,15 +173,14 @@ export default function FormsList(props: FormsListProps) {
                   borderBottom: "0.5px solid lightgray",
                   ...formItemStyle
                 }}
-                onClick={() => handleFormSelected(form.uuid, form.name)}
+                onClick={() =>
+                  launchVisitNoteForm(form.uuid, form.name, encounters[0].uuid)
+                }
               >
                 <button className="omrs-btn omrs-text-action">
                   {" "}
                   {form.name}{" "}
                 </button>
-                {/* <svg className="omrs-icon" style={{height: "2rem", width: "2rem"}} fill="var(--omrs-color-ink-low-contrast)">
-                  <use xlinkHref="#omrs-icon-chevron-right"></use>
-                </svg> */}
               </div>
             );
           })}
